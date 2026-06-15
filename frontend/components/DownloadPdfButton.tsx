@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { NdaFormData } from "@/lib/nda-types";
 
 /** Build a filesystem-friendly filename from the parties' companies. */
-function buildFilename(data: NdaFormData): string {
+export function buildFilename(data: NdaFormData): string {
   const slug = (s: string) =>
     s
       .trim()
