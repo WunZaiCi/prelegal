@@ -11,11 +11,23 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
+from .chat import ChatResult, MissingApiKeyError, run_chat
 from .config import STATIC_DIR
 from .db import init_db
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage]
+    data: dict | None = None
 
 
 @asynccontextmanager
@@ -31,6 +43,19 @@ def create_app() -> FastAPI:
     @app.get("/api/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.post("/api/chat", response_model=ChatResult)
+    def chat(req: ChatRequest) -> ChatResult:
+        history = [m.model_dump() for m in req.messages]
+        try:
+            return run_chat(history, req.data)
+        except MissingApiKeyError as exc:
+            # 503: the service is configured-but-unavailable (no API key).
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        except Exception as exc:  # noqa: BLE001 — surface a clean error to the UI
+            raise HTTPException(
+                status_code=502, detail=f"AI request failed: {exc}"
+            ) from exc
 
     # Serve the exported frontend last so it acts as a catch-all for non-API
     # routes. `html=True` makes `/` and `/login/` resolve to their index.html.

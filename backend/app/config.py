@@ -9,9 +9,17 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Repository / image layout:
 #   backend/app/config.py  -> BACKEND_DIR = backend/
 BACKEND_DIR = Path(__file__).resolve().parent.parent
+
+# Load the repo-root .env (one level above backend/) for local dev so secrets
+# like CEREBRAS_API_KEY reach the process. In Docker the file is absent (it is
+# gitignored and excluded from the image); the key is passed via --env-file at
+# `docker run`, so this is simply a no-op there. Never override real env vars.
+load_dotenv(BACKEND_DIR.parent / ".env", override=False)
 
 
 def _path_from_env(var: str, default: Path) -> Path:
