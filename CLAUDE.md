@@ -54,7 +54,7 @@ scripts/stop-windows.ps1
 - 深海军蓝: `#032147` （标题）
 - 灰色文本: `#888888`
 
-## 已实现（V1 技术基础 + AI 聊天）
+## 已实现（V1 技术基础 + AI 聊天 + 多文档类型）
 
 - **前端**：`frontend/`，Next.js（App Router，静态导出到 `frontend/out`）。多文档类型起草器（**唯一入口为 AI 聊天 `ChatPanel`，手动表单已移除**）+ PDF 下载；前端假登录页 `/login` 与登录门禁（`app/page.tsx`）。界面按「Color Scheme」全面改版为冷色 SaaS 风格：海军蓝标题、蓝色主操作、紫色提交按钮、黄色强调。应用界面字体改为无衬线 **Archivo**，文档预览区保留 **Newsreader** 衬线以显正式；字体经 `@fontsource` 自托管，构建无需访问 Google Fonts。
 - **多文档类型（PL-6）**：文档注册表的单一事实来源为 `frontend/lib/documents.json`（前端 import、后端运行时读取，Docker 中 COPY 进镜像并由 `PRELEGAL_DOCUMENTS_PATH` 指定）。互惠保密协议（NDA）走原有专属管线（`NdaPreview`/`NdaPdfDocument`/`standard-terms`）；其余类型走通用引擎——按各文档的 `keyTerms` 由 AI 对话收集，并用 `GenericPreview`/`GenericPdfDocument` 通用渲染封面页（引用 Common Paper 标准条款，不内嵌全文）。
@@ -63,7 +63,7 @@ scripts/stop-windows.ps1
 - **数据库**：SQLite，每次启动从头重建，包含 `users` 表。**与设计的差异**：当前登录为纯前端假登录（无真实认证），`users` 表仅作为后续真实注册/登录的脚手架，暂无任何接口读写它。
 - **打包**：根目录多阶段 `Dockerfile`（Node 构建前端 → 经 uv 的 FastAPI 运行时）。`npm` registry 默认指向官方 `registry.npmjs.org`（开箱即用）；中国大陆等官方源缓慢/受阻的网络可用 `--build-arg NPM_REGISTRY=https://registry.npmmirror.com`（或 `$env:NPM_REGISTRY`）切换到镜像。
 - **脚本**：`scripts/{start,stop}-{mac,linux,windows}` 用于构建/运行/停止容器。
-- **测试**：后端 `uv run pytest`（健康检查、数据库重建、静态托管）；前端 `npm test`（含 auth 与 LoginForm）。
+- **测试**：后端 `uv run pytest`（健康检查、数据库重建、静态托管、文档注册表 `test_documents.py`、聊天三模式 `test_chat.py`）；前端 `npm test`（auth、LoginForm、`ChatPanel`、文档注册表 `documents.test.ts`、NDA 预览/PDF 等）。
 
 > 备注：本次还修复了根 `.gitignore` —— 通用的 Python `lib/` 规则曾误伤前端源码目录 `frontend/lib/`，导致 PL-3 的源文件从未被提交；已锚定为 `/lib/` 并补提交。
 
