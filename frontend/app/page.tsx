@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ChatPanel from "@/components/ChatPanel";
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 import NdaForm from "@/components/NdaForm";
 import NdaPreview from "@/components/NdaPreview";
@@ -12,6 +13,7 @@ export default function Home() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [data, setData] = useState<NdaFormData>(defaultNdaData);
+  const [mode, setMode] = useState<Mode>("chat");
 
   // Gate the platform behind the fake login: bounce to /login if not signed in.
   useEffect(() => {
@@ -73,11 +75,20 @@ export default function Home() {
 
       {/* Workspace */}
       <div className="grid grid-cols-1 gap-10 py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-16">
-        {/* Form column */}
+        {/* Input column — AI chat (default) or the manual form */}
         <div className="animate-rise">
-          <SectionTag>The details</SectionTag>
+          <div className="flex items-center justify-between gap-4">
+            <SectionTag>
+              {mode === "chat" ? "Chat with AI" : "The details"}
+            </SectionTag>
+            <ModeToggle mode={mode} onChange={setMode} />
+          </div>
           <div className="mt-6">
-            <NdaForm data={data} onChange={setData} />
+            {mode === "chat" ? (
+              <ChatPanel data={data} onChange={setData} />
+            ) : (
+              <NdaForm data={data} onChange={setData} />
+            )}
           </div>
         </div>
 
@@ -100,6 +111,40 @@ export default function Home() {
         provide legal advice.
       </footer>
     </main>
+  );
+}
+
+type Mode = "chat" | "form";
+
+function ModeToggle({
+  mode,
+  onChange,
+}: {
+  mode: Mode;
+  onChange: (mode: Mode) => void;
+}) {
+  const options: { value: Mode; label: string }[] = [
+    { value: "chat", label: "AI chat" },
+    { value: "form", label: "Manual form" },
+  ];
+  return (
+    <div className="inline-flex shrink-0 rounded-full border border-line bg-paper p-1">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          onClick={() => onChange(o.value)}
+          aria-pressed={mode === o.value}
+          className={`rounded-full px-3 py-1.5 font-ui text-[12px] font-600 tracking-[0.04em] transition-colors ${
+            mode === o.value
+              ? "bg-ink text-paper"
+              : "text-ink-soft hover:text-oxblood"
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
   );
 }
 

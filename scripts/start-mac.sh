@@ -21,6 +21,15 @@ docker build ${BUILD_ARGS[@]+"${BUILD_ARGS[@]}"} -t "$IMAGE" "$ROOT_DIR"
 docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
 
 echo "Starting $CONTAINER ..."
-docker run -d --name "$CONTAINER" -p 8000:8000 "$IMAGE"
+# Pass secrets (e.g. CEREBRAS_API_KEY) from .env into the container at runtime.
+# The file is gitignored and never baked into the image.
+RUN_ARGS=(-d --name "$CONTAINER" -p 8000:8000)
+if [ -f "$ROOT_DIR/.env" ]; then
+  echo "Loading secrets from .env"
+  RUN_ARGS+=(--env-file "$ROOT_DIR/.env")
+else
+  echo "No .env found - AI chat will be disabled (set CEREBRAS_API_KEY in .env)."
+fi
+docker run "${RUN_ARGS[@]}" "$IMAGE"
 
 echo "Prelegal is running at http://localhost:8000"
