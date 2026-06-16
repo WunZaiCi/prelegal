@@ -1,0 +1,171 @@
+{
+  "_comment": "Single source of truth for the document-type registry (PL-6). Consumed by the frontend (lib/documents.ts) and the backend (app/documents.py). 'nda' documents use the bespoke Mutual NDA pipeline; 'generic' documents are driven by their keyTerms. Field types: text | textarea | date | number | select | party. A 'party' field expands into <key>_company, <key>_name, <key>_title, <key>_notice.",
+  "documents": [
+    {
+      "id": "mutual-nda",
+      "name": "Mutual NDA",
+      "kind": "nda",
+      "description": "Mutual Non-Disclosure Agreement: two parties exchange and protect each other's confidential information. Best when both sides will share sensitive information while exploring a relationship."
+    },
+    {
+      "id": "cloud-service-agreement",
+      "name": "Cloud Service Agreement",
+      "kind": "generic",
+      "description": "For a provider giving a customer access to a cloud/SaaS product: covers access, support, customer content, fees, and liability.",
+      "keyTerms": [
+        { "key": "provider", "label": "Provider", "type": "party", "hint": "The company providing the cloud service." },
+        { "key": "customer", "label": "Customer", "type": "party", "hint": "The company using the cloud service." },
+        { "key": "cloudService", "label": "Cloud Service", "type": "text", "hint": "Name of the product/service being provided." },
+        { "key": "subscriptionTerm", "label": "Subscription Term", "type": "text", "hint": "e.g. 1 year, auto-renewing." },
+        { "key": "fees", "label": "Fees", "type": "textarea", "hint": "Pricing and payment terms." },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text", "hint": "e.g. Delaware." },
+        { "key": "jurisdiction", "label": "Jurisdiction", "type": "text", "hint": "Courts that have jurisdiction." }
+      ]
+    },
+    {
+      "id": "design-partner-agreement",
+      "name": "Design Partner Agreement",
+      "kind": "generic",
+      "description": "For an early-access design partnership: a partner gets early product access and gives feedback to the provider.",
+      "keyTerms": [
+        { "key": "provider", "label": "Provider", "type": "party" },
+        { "key": "partner", "label": "Partner", "type": "party" },
+        { "key": "product", "label": "Product", "type": "text", "hint": "The product the partner gets early access to." },
+        { "key": "program", "label": "Program", "type": "textarea", "hint": "What the design-partner program involves." },
+        { "key": "term", "label": "Term", "type": "text", "hint": "Length of the partnership." },
+        { "key": "fees", "label": "Fees", "type": "textarea", "hint": "Fees, if any (often none)." },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" },
+        { "key": "jurisdiction", "label": "Jurisdiction", "type": "text" }
+      ]
+    },
+    {
+      "id": "service-level-agreement",
+      "name": "Service Level Agreement",
+      "kind": "generic",
+      "description": "Defines uptime targets, response times, and service credits for a cloud service. Usually accompanies a Cloud Service Agreement.",
+      "keyTerms": [
+        { "key": "provider", "label": "Provider", "type": "party" },
+        { "key": "customer", "label": "Customer", "type": "party" },
+        { "key": "uptimeTarget", "label": "Uptime Target", "type": "text", "hint": "e.g. 99.9% per month." },
+        { "key": "responseTimes", "label": "Response Time Targets", "type": "textarea", "hint": "Support response targets by severity." },
+        { "key": "serviceCredits", "label": "Service Credits", "type": "textarea", "hint": "Credits when targets are missed." },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" }
+      ]
+    },
+    {
+      "id": "professional-services-agreement",
+      "name": "Professional Services Agreement",
+      "kind": "generic",
+      "description": "Governs SOW-based professional services: cooperation, change orders, acceptance, subcontractors, and deliverables.",
+      "keyTerms": [
+        { "key": "provider", "label": "Provider", "type": "party" },
+        { "key": "customer", "label": "Customer", "type": "party" },
+        { "key": "services", "label": "Services", "type": "textarea", "hint": "Description of the services / statement of work." },
+        { "key": "deliverables", "label": "Deliverables", "type": "textarea", "hint": "What will be delivered." },
+        { "key": "fees", "label": "Fees", "type": "textarea", "hint": "Pricing and payment terms." },
+        { "key": "term", "label": "Term", "type": "text" },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" },
+        { "key": "jurisdiction", "label": "Jurisdiction", "type": "text" }
+      ]
+    },
+    {
+      "id": "data-processing-agreement",
+      "name": "Data Processing Agreement",
+      "kind": "generic",
+      "description": "Covers processing of personal data between a controller and a processor: security, subprocessors, and data-protection compliance.",
+      "keyTerms": [
+        { "key": "controller", "label": "Controller", "type": "party", "hint": "The party that determines the purposes of processing." },
+        { "key": "processor", "label": "Processor", "type": "party", "hint": "The party that processes data on the controller's behalf." },
+        { "key": "subjectMatter", "label": "Subject Matter & Duration", "type": "textarea" },
+        { "key": "natureAndPurpose", "label": "Nature & Purpose of Processing", "type": "textarea" },
+        { "key": "dataCategories", "label": "Categories of Personal Data", "type": "textarea" },
+        { "key": "dataSubjects", "label": "Categories of Data Subjects", "type": "textarea" },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" }
+      ]
+    },
+    {
+      "id": "software-license-agreement",
+      "name": "Software License Agreement",
+      "kind": "generic",
+      "description": "Governs installation and use of software: license scope, user accounts, usage data, and open-source terms.",
+      "keyTerms": [
+        { "key": "licensor", "label": "Licensor", "type": "party" },
+        { "key": "licensee", "label": "Licensee", "type": "party" },
+        { "key": "software", "label": "Software", "type": "text", "hint": "Name of the licensed software." },
+        { "key": "licenseScope", "label": "License Scope", "type": "textarea", "hint": "What the licensee may do with the software." },
+        { "key": "fees", "label": "Fees", "type": "textarea" },
+        { "key": "term", "label": "Term", "type": "text" },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" },
+        { "key": "jurisdiction", "label": "Jurisdiction", "type": "text" }
+      ]
+    },
+    {
+      "id": "partnership-agreement",
+      "name": "Partnership Agreement",
+      "kind": "generic",
+      "description": "Covers cooperation and obligations between two partners: purpose, responsibilities, feedback, and payment.",
+      "keyTerms": [
+        { "key": "party1", "label": "Partner 1", "type": "party" },
+        { "key": "party2", "label": "Partner 2", "type": "party" },
+        { "key": "purpose", "label": "Purpose", "type": "textarea", "hint": "What the partnership is for." },
+        { "key": "responsibilities", "label": "Responsibilities", "type": "textarea", "hint": "Each partner's obligations." },
+        { "key": "term", "label": "Term", "type": "text" },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" },
+        { "key": "jurisdiction", "label": "Jurisdiction", "type": "text" }
+      ]
+    },
+    {
+      "id": "pilot-agreement",
+      "name": "Pilot Agreement",
+      "kind": "generic",
+      "description": "For evaluating a product during a time-boxed pilot: pilot access, license, user accounts, and feedback.",
+      "keyTerms": [
+        { "key": "provider", "label": "Provider", "type": "party" },
+        { "key": "customer", "label": "Customer", "type": "party" },
+        { "key": "product", "label": "Product", "type": "text" },
+        { "key": "pilotPeriod", "label": "Pilot Period", "type": "text", "hint": "How long the pilot runs." },
+        { "key": "fees", "label": "Fees", "type": "textarea", "hint": "Fees, if any." },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" },
+        { "key": "jurisdiction", "label": "Jurisdiction", "type": "text" }
+      ]
+    },
+    {
+      "id": "business-associate-agreement",
+      "name": "Business Associate Agreement",
+      "kind": "generic",
+      "description": "Addresses HIPAA business-associate obligations: permitted uses and disclosures of PHI, safeguards, and assessments.",
+      "keyTerms": [
+        { "key": "coveredEntity", "label": "Covered Entity", "type": "party" },
+        { "key": "businessAssociate", "label": "Business Associate", "type": "party" },
+        { "key": "permittedUses", "label": "Permitted Uses & Disclosures of PHI", "type": "textarea" },
+        { "key": "term", "label": "Term", "type": "text" },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" }
+      ]
+    },
+    {
+      "id": "ai-addendum",
+      "name": "AI Addendum",
+      "kind": "generic",
+      "description": "Supplements an agreement to cover use of AI services: restrictions, model training, IP, and privacy.",
+      "keyTerms": [
+        { "key": "provider", "label": "Provider", "type": "party" },
+        { "key": "customer", "label": "Customer", "type": "party" },
+        { "key": "mainAgreement", "label": "Main Agreement", "type": "text", "hint": "The agreement this addendum supplements." },
+        { "key": "aiServices", "label": "AI Services", "type": "textarea", "hint": "The AI services this covers." },
+        { "key": "modelTraining", "label": "Model Training", "type": "select", "options": ["Allowed", "Not allowed", "Allowed only on de-identified data"], "hint": "Whether customer data may be used to train models." },
+        { "key": "restrictions", "label": "Restrictions", "type": "textarea" },
+        { "key": "effectiveDate", "label": "Effective Date", "type": "date" },
+        { "key": "governingLaw", "label": "Governing Law", "type": "text" }
+      ]
+    }
+  ]
+}

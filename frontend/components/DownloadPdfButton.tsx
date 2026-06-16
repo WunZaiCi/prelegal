@@ -1,39 +1,78 @@
 "use client";
 
 import { useState } from "react";
+import type { DocumentSpec, GenericDocData } from "@/lib/documents";
+import { PARTY_SUBFIELDS } from "@/lib/documents";
 import type { NdaFormData } from "@/lib/nda-types";
 
-/** Build a filesystem-friendly filename from the parties' companies. */
+const slug = (s: string) =>
+  s
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 40);
+
+/** Build a filesystem-friendly filename from the parties' companies (NDA). */
 export function buildFilename(data: NdaFormData): string {
-  const slug = (s: string) =>
-    s
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .slice(0, 40);
-  const a = slug(data.party1.company);
-  const b = slug(data.party2.company);
-  const parties = [a, b].filter(Boolean).join("_and_");
+  const parties = [data.party1.company, data.party2.company]
+    .map(slug)
+    .filter(Boolean)
+    .join("_and_");
   return parties ? `Mutual-NDA_${parties}.pdf` : "Mutual-NDA.pdf";
 }
 
-export default function DownloadPdfButton({ data }: { data: NdaFormData }) {
+/** Filename for a generic document: `<Doc-Name>_<companies>.pdf`. */
+export function buildGenericFilename(
+  spec: DocumentSpec,
+  data: GenericDocData,
+): string {
+  const base = slug(spec.name) || "Agreement";
+  const companies = (spec.keyTerms ?? [])
+    .filter((t) => t.type === "party")
+    .map((t) => slug(data[`${t.key}_${PARTY_SUBFIELDS[0].suffix}`] ?? ""))
+    .filter(Boolean)
+    .join("_and_");
+  return companies ? `${base}_${companies}.pdf` : `${base}.pdf`;
+}
+
+export default function DownloadPdfButton({
+  spec,
+  ndaData,
+  genericData,
+}: {
+  spec: DocumentSpec | null;
+  ndaData: NdaFormData;
+  genericData: GenericDocData;
+}) {
   const [busy, setBusy] = useState(false);
 
   const handleDownload = async () => {
+    if (!spec) return;
     setBusy(true);
     try {
       // Imported lazily so @react-pdf/renderer never runs during SSR.
-      const [{ pdf }, { default: NdaPdfDocument }] = await Promise.all([
-        import("@react-pdf/renderer"),
-        import("./NdaPdfDocument"),
-      ]);
+      const { pdf } = await import("@react-pdf/renderer");
 
-      const blob = await pdf(<NdaPdfDocument data={data} />).toBlob();
+      let blob: Blob;
+      let filename: string;
+      if (spec.kind === "nda") {
+        const { default: NdaPdfDocument } = await import("./NdaPdfDocument");
+        blob = await pdf(<NdaPdfDocument data={ndaData} />).toBlob();
+        filename = buildFilename(ndaData);
+      } else {
+        const { default: GenericPdfDocument } = await import(
+          "./GenericPdfDocument"
+        );
+        blob = await pdf(
+          <GenericPdfDocument spec={spec} data={genericData} />,
+        ).toBlob();
+        filename = buildGenericFilename(spec, genericData);
+      }
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = buildFilename(data);
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -50,8 +89,8 @@ export default function DownloadPdfButton({ data }: { data: NdaFormData }) {
     <button
       type="button"
       onClick={handleDownload}
-      disabled={busy}
-      className="group inline-flex items-center gap-2.5 rounded-full bg-blue px-6 py-3 font-ui text-[13px] font-600 tracking-[0.04em] text-white shadow-document transition-all hover:bg-blue-deep disabled:cursor-wait disabled:opacity-70"
+      disabled={busy || !spec}
+      className="group inline-flex items-center gap-2.5 rounded-full bg-blue px-6 py-3 font-ui text-[13px] font-600 tracking-[0.04em] text-white shadow-document transition-all hover:bg-blue-deep disabled:cursor-not-allowed disabled:opacity-50"
     >
       <svg
         width="16"

@@ -4,14 +4,26 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useState } from "react";
 import ChatPanel from "./ChatPanel";
 import { defaultNdaData, type NdaFormData } from "@/lib/nda-types";
+import type { GenericDocData } from "@/lib/documents";
 
-/** Harness mirroring how the page wires data <-> ChatPanel. */
+/** Harness mirroring how the page wires lifted state <-> ChatPanel. */
 function Harness() {
-  const [data, setData] = useState<NdaFormData>(defaultNdaData);
+  const [docType, setDocType] = useState<string | null>(null);
+  const [ndaData, setNdaData] = useState<NdaFormData>(defaultNdaData);
+  const [genericData, setGenericData] = useState<GenericDocData>({});
   return (
     <>
-      <ChatPanel data={data} onChange={setData} />
-      <span data-testid="gov">{data.governingLaw}</span>
+      <ChatPanel
+        docType={docType}
+        onDocTypeChange={setDocType}
+        ndaData={ndaData}
+        onNdaData={setNdaData}
+        genericData={genericData}
+        onGenericData={setGenericData}
+      />
+      <span data-testid="doctype">{docType ?? ""}</span>
+      <span data-testid="gov">{ndaData.governingLaw}</span>
+      <span data-testid="generic">{JSON.stringify(genericData)}</span>
     </>
   );
 }
@@ -23,15 +35,18 @@ afterEach(() => {
 describe("ChatPanel", () => {
   it("shows the greeting on mount", () => {
     render(<Harness />);
-    expect(screen.getByText(/I'll help you draft your Mutual NDA/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/help you draft a legal document/i),
+    ).toBeInTheDocument();
   });
 
-  it("sends a message, shows the reply, and applies extracted fields", async () => {
+  it("selects the NDA and applies extracted NDA fields", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        reply: "Great — using Delaware law.",
-        fields: { governingLaw: "Delaware" },
+        reply: "Let's draft your Mutual NDA — using Delaware law.",
+        docType: "mutual-nda",
+        ndaFields: { governingLaw: "Delaware" },
       }),
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -39,21 +54,51 @@ describe("ChatPanel", () => {
     const user = userEvent.setup();
     render(<Harness />);
 
-    await user.type(screen.getByLabelText("Message"), "Use Delaware law");
+    await user.type(screen.getByLabelText("Message"), "I need an NDA");
     await user.click(screen.getByRole("button", { name: /send/i }));
 
-    // User message + assistant reply appear.
-    expect(screen.getByText("Use Delaware law")).toBeInTheDocument();
     await waitFor(() =>
-      expect(screen.getByText("Great — using Delaware law.")).toBeInTheDocument(),
+      expect(screen.getByTestId("doctype")).toHaveTextContent("mutual-nda"),
     );
-    // Extracted field is merged into the shared data.
     expect(screen.getByTestId("gov")).toHaveTextContent("Delaware");
 
-    // The request carried the conversation + current data.
+    // First request is in selection mode: docType null, no document data.
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.messages.at(-1)).toEqual({ role: "user", content: "Use Delaware law" });
-    expect(body.data).toBeTruthy();
+    expect(body.docType).toBeNull();
+    expect(body.data).toBeNull();
+    expect(body.messages.at(-1)).toEqual({
+      role: "user",
+      content: "I need an NDA",
+    });
+  });
+
+  it("selects a generic document and applies its fields", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          reply: "A Partnership Agreement it is.",
+          docType: "partnership-agreement",
+          fields: { purpose: "Build a joint product" },
+        }),
+      }),
+    );
+
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    await user.type(screen.getByLabelText("Message"), "partnership");
+    await user.click(screen.getByRole("button", { name: /send/i }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("doctype")).toHaveTextContent(
+        "partnership-agreement",
+      ),
+    );
+    expect(screen.getByTestId("generic")).toHaveTextContent(
+      "Build a joint product",
+    );
   });
 
   it("surfaces a friendly error when the request fails", async () => {

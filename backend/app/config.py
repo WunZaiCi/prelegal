@@ -35,3 +35,11 @@ DATABASE_PATH = _path_from_env("PRELEGAL_DB_PATH", BACKEND_DIR / "prelegal.db")
 # Docker image the build copies it next to the backend; locally it may be absent
 # (run the frontend with `next dev` instead), which the app tolerates.
 STATIC_DIR = _path_from_env("PRELEGAL_STATIC_DIR", BACKEND_DIR / "static")
+
+# Shared document-type registry (PL-6). The single source of truth lives in the
+# frontend (`frontend/lib/documents.json`); locally we read it straight from the
+# repo, and the Docker image copies it next to the app and sets the env var.
+DOCUMENTS_PATH = _path_from_env(
+    "PRELEGAL_DOCUMENTS_PATH",
+    BACKEND_DIR.parent / "frontend" / "lib" / "documents.json",
+)

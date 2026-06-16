@@ -41,6 +41,9 @@ RUN uv sync --frozen --no-dev --no-install-project
 # Application code.
 COPY backend/app ./app
 
+# Shared document-type registry (single source of truth lives in the frontend).
+COPY frontend/lib/documents.json ./documents.json
+
 # Static frontend produced by stage 1.
 COPY --from=frontend /frontend/out ./static
 
@@ -48,6 +51,7 @@ COPY --from=frontend /frontend/out ./static
 # read-mostly app tree.
 ENV PRELEGAL_STATIC_DIR=/app/static \
     PRELEGAL_DB_PATH=/tmp/prelegal.db \
+    PRELEGAL_DOCUMENTS_PATH=/app/documents.json \
     PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
