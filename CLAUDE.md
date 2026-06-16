@@ -22,7 +22,7 @@
 
 在编写调用大型语言模型（LLM）的代码时，请利用您的 Cerebras 技能，通过 LiteLLM 直接以 Cerebras 作为推理提供商进行调用，并选择 `cerebras/gpt-oss-120b` 模型。您应使用结构化输出，以便能够解读结果并填充法律文件中的字段。
 
-项目根目录下的 .env 文件中包含一个 OPENROUTER_API_KEY。
+项目根目录下的 .env 文件中包含一个 CEREBRAS_API_KEY，用于直连 Cerebras Cloud（不经过 OpenRouter）。
 
 ## Technical design
 
