@@ -1,39 +1,121 @@
 /**
- * Fake, frontend-only "auth" for the V1 foundation.
+ * Real authentication client (PL-7).
  *
- * There is no real authentication yet: a successful sign-in simply records a
- * flag in localStorage so the app can route the user into the platform and back
- * out again. This is a deliberate placeholder — real registration/login backed
- * by the API will replace it in a later ticket.
+ * Talks to the backend auth API and keeps an opaque session token in
+ * localStorage. `isAuthed()` is a cheap synchronous gate (is a token present?)
+ * used for client-side routing; `getMe()` validates the token against the API.
  */
 
-const STORAGE_KEY = "prelegal_authed";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "";
+const TOKEN_KEY = "prelegal_token";
 
-/** Whether the user has "signed in" during this browser session. */
-export function isAuthed(): boolean {
-  if (typeof window === "undefined") return false;
+export interface User {
+  id: number;
+  email: string;
+}
+
+export function getToken(): string | null {
+  if (typeof window === "undefined") return null;
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === "1";
+    return window.localStorage.getItem(TOKEN_KEY);
   } catch {
-    // localStorage can throw in private-mode / sandboxed contexts.
-    return false;
+    return null;
   }
 }
 
-/** Record a (fake) successful sign-in. */
-export function signIn(): void {
+function setToken(token: string): void {
   try {
-    window.localStorage.setItem(STORAGE_KEY, "1");
+    window.localStorage.setItem(TOKEN_KEY, token);
   } catch {
-    /* no-op: nothing we can do if storage is unavailable */
+    /* no-op: storage unavailable */
   }
 }
 
-/** Clear the sign-in flag. */
-export function signOut(): void {
+function clearToken(): void {
   try {
-    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(TOKEN_KEY);
   } catch {
     /* no-op */
+  }
+}
+
+/** Whether a session token is present (cheap, synchronous routing gate). */
+export function isAuthed(): boolean {
+  return getToken() !== null;
+}
+
+/** Authorization header for authenticated API calls (empty when signed out). */
+export function authHeader(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+async function errorMessage(res: Response, fallback: string): Promise<string> {
+  try {
+    const body = await res.json();
+    if (body?.detail) {
+      // FastAPI 422s can return an array of errors; take the first message.
+      if (Array.isArray(body.detail)) return body.detail[0]?.msg ?? fallback;
+      return body.detail;
+    }
+  } catch {
+    /* non-JSON body */
+  }
+  return fallback;
+}
+
+async function authRequest(
+  path: string,
+  email: string,
+  password: string,
+): Promise<User> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    throw new Error(await errorMessage(res, "Something went wrong."));
+  }
+  const { token, user } = await res.json();
+  setToken(token);
+  return user;
+}
+
+export function register(email: string, password: string): Promise<User> {
+  return authRequest("/api/auth/register", email, password);
+}
+
+export function login(email: string, password: string): Promise<User> {
+  return authRequest("/api/auth/login", email, password);
+}
+
+/** Clear the session both server-side and locally. Always clears locally. */
+export async function logout(): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/api/auth/logout`, {
+      method: "POST",
+      headers: authHeader(),
+    });
+  } catch {
+    /* even if the call fails, drop the local token below */
+  }
+  clearToken();
+}
+
+/** Resolve the current user from the stored token, or null if not signed in. */
+export async function getMe(): Promise<User | null> {
+  if (!getToken()) return null;
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
+      headers: authHeader(),
+    });
+    if (!res.ok) {
+      if (res.status === 401) clearToken();
+      return null;
+    }
+    return res.json();
+  } catch {
+    return null;
   }
 }
