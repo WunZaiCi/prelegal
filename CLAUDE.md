@@ -8,7 +8,7 @@
 
 @catalog.json
 
-当前状态（V1 技术基础，PL-4 已完成）：项目已具备完整技术骨架——Next.js 前端、FastAPI 后端、临时 SQLite 数据库，并通过单一 Docker 容器交付。目前仍仅支持《互惠保密协议》文档；登录为前端假登录（无真实身份验证，点击即进入平台）；尚未包含 AI 聊天功能。详见文末「已实现」一节。
+当前状态（V1 技术基础 + AI 聊天）：项目已具备完整技术骨架——Next.js 前端、FastAPI 后端、临时 SQLite 数据库，并通过单一 Docker 容器交付。AI 聊天起草已接入（Cerebras，见「AI design」），且为唯一的字段填写方式——手动表单已移除。界面已按本文「Color Scheme」全面改版为冷色 SaaS 风格（无衬线）。目前仍仅支持《互惠保密协议》文档；登录为前端假登录（无真实身份验证，点击即进入平台）。详见文末「已实现」一节。
 
 ## Development process
 
@@ -54,12 +54,13 @@ scripts/stop-windows.ps1
 - 深海军蓝: `#032147` （标题）
 - 灰色文本: `#888888`
 
-## 已实现（V1 技术基础 — PL-4）
+## 已实现（V1 技术基础 + AI 聊天）
 
-- **前端**：`frontend/`，Next.js（App Router，静态导出到 `frontend/out`）。《互惠保密协议》起草器 + PDF 下载；新增前端假登录页 `/login` 与登录门禁（`app/page.tsx`）。字体已改为通过 `@fontsource` 自托管，构建无需访问 Google Fonts。
-- **后端**：`backend/`，FastAPI（uv 项目），运行于 http://localhost:8000 。提供 `GET /api/health`，并托管静态前端（前端与 API 同源单一来源）。
+- **前端**：`frontend/`，Next.js（App Router，静态导出到 `frontend/out`）。《互惠保密协议》起草器（**唯一入口为 AI 聊天 `ChatPanel`，手动表单已移除**）+ PDF 下载；前端假登录页 `/login` 与登录门禁（`app/page.tsx`）。界面按「Color Scheme」全面改版为冷色 SaaS 风格：海军蓝标题、蓝色主操作、紫色提交按钮、黄色强调。应用界面字体改为无衬线 **Archivo**，文档预览区保留 **Newsreader** 衬线以显正式；字体经 `@fontsource` 自托管，构建无需访问 Google Fonts。
+- **AI 聊天**：后端 `POST /api/chat`（`backend/app/chat.py`），经 LiteLLM 直连 Cerebras（`cerebras/gpt-oss-120b`，结构化输出）解析对话并回填字段；前端 `components/ChatPanel.tsx` + `lib/chat.ts`。需在根目录 `.env` 设置 `CEREBRAS_API_KEY`，否则聊天禁用。
+- **后端**：`backend/`，FastAPI（uv 项目），运行于 http://localhost:8000 。提供 `GET /api/health` 与 `POST /api/chat`，并托管静态前端（前端与 API 同源单一来源）。
 - **数据库**：SQLite，每次启动从头重建，包含 `users` 表。**与设计的差异**：当前登录为纯前端假登录（无真实认证），`users` 表仅作为后续真实注册/登录的脚手架，暂无任何接口读写它。
-- **打包**：根目录多阶段 `Dockerfile`（Node 构建前端 → 经 uv 的 FastAPI 运行时）。`npm` registry 默认指向 `registry.npmmirror.com` 这一快速镜像，可用 `--build-arg NPM_REGISTRY=...` 覆盖。
+- **打包**：根目录多阶段 `Dockerfile`（Node 构建前端 → 经 uv 的 FastAPI 运行时）。`npm` registry 默认指向官方 `registry.npmjs.org`（开箱即用）；中国大陆等官方源缓慢/受阻的网络可用 `--build-arg NPM_REGISTRY=https://registry.npmmirror.com`（或 `$env:NPM_REGISTRY`）切换到镜像。
 - **脚本**：`scripts/{start,stop}-{mac,linux,windows}` 用于构建/运行/停止容器。
 - **测试**：后端 `uv run pytest`（健康检查、数据库重建、静态托管）；前端 `npm test`（含 auth 与 LoginForm）。
 
@@ -67,6 +68,5 @@ scripts/stop-windows.ps1
 
 ## 后续（尚未实现）
 
-- AI 聊天功能（参见「AI design」），用于确定文档类型并填充字段。
 - 基于 `users` 表的真实注册/登录与会话认证（替换当前的前端假登录）。
-- 《互惠保密协议》以外的其余 `catalog.json` 文档类型。
+- 《互惠保密协议》以外的其余 `catalog.json` 文档类型（含 AI 聊天对文档类型的判定）。
