@@ -28,6 +28,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: list[ChatMessage]
     data: dict | None = None
+    docType: str | None = None
 
 
 @asynccontextmanager
@@ -48,7 +49,7 @@ def create_app() -> FastAPI:
     def chat(req: ChatRequest) -> ChatResult:
         history = [m.model_dump() for m in req.messages]
         try:
-            return run_chat(history, req.data)
+            return run_chat(history, req.data, req.docType)
         except MissingApiKeyError as exc:
             # 503: the service is configured-but-unavailable (no API key).
             raise HTTPException(status_code=503, detail=str(exc)) from exc

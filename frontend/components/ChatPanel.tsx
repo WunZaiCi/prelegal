@@ -2,25 +2,41 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  emptyGenericData,
+  getDocument,
+  mergeGenericFields,
+  type GenericDocData,
+} from "@/lib/documents";
+import {
   mergeFields,
   sendChat,
   type ChatMessage,
+  type ChatResponse,
 } from "@/lib/chat";
 import type { NdaFormData } from "@/lib/nda-types";
 
 const GREETING: ChatMessage = {
   role: "assistant",
   content:
-    "Hi! I'll help you draft your Mutual NDA. Tell me about the two parties " +
-    "and what the NDA is for, and I'll fill in the document on the right as we go.",
+    "Hi! I can help you draft a legal document. Tell me what you need — for " +
+    "example an NDA, a cloud service agreement, or a partnership agreement — " +
+    "and I'll figure out the right template and fill it in as we talk.",
 };
 
 export default function ChatPanel({
-  data,
-  onChange,
+  docType,
+  onDocTypeChange,
+  ndaData,
+  onNdaData,
+  genericData,
+  onGenericData,
 }: {
-  data: NdaFormData;
-  onChange: (data: NdaFormData) => void;
+  docType: string | null;
+  onDocTypeChange: (docType: string) => void;
+  ndaData: NdaFormData;
+  onNdaData: (data: NdaFormData) => void;
+  genericData: GenericDocData;
+  onGenericData: (data: GenericDocData) => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
   const [input, setInput] = useState("");
@@ -33,6 +49,24 @@ export default function ChatPanel({
     scrollRef.current?.scrollTo?.({ top: scrollRef.current.scrollHeight });
   }, [messages, busy]);
 
+  /** Apply the AI's docType selection and field updates to the lifted state. */
+  const applyResult = (resp: ChatResponse) => {
+    const switching = !!resp.docType && resp.docType !== docType;
+    if (switching) onDocTypeChange(resp.docType as string);
+
+    const targetDocType = resp.docType ?? docType;
+    if (!targetDocType) return;
+    const spec = getDocument(targetDocType);
+    if (!spec) return;
+
+    if (spec.kind === "nda") {
+      if (resp.ndaFields) onNdaData(mergeFields(ndaData, resp.ndaFields));
+    } else {
+      const base = switching ? emptyGenericData(spec) : genericData;
+      onGenericData(mergeGenericFields(spec, base, resp.fields));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const text = input.trim();
@@ -44,10 +78,17 @@ export default function ChatPanel({
     setError(null);
     setBusy(true);
 
+    // Send the current document's values for context (null while selecting).
+    const context = docType
+      ? getDocument(docType)?.kind === "nda"
+        ? ndaData
+        : genericData
+      : null;
+
     try {
-      const { reply, fields } = await sendChat(history, data);
-      setMessages([...history, { role: "assistant", content: reply }]);
-      onChange(mergeFields(data, fields));
+      const resp = await sendChat(history, docType, context);
+      setMessages([...history, { role: "assistant", content: resp.reply }]);
+      applyResult(resp);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

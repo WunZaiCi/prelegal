@@ -29,7 +29,12 @@ export interface ExtractedFields {
 
 export interface ChatResponse {
   reply: string;
-  fields: ExtractedFields;
+  /** The document the AI is now working on (selected or switched). */
+  docType?: string | null;
+  /** Generic key→value field updates (for `generic` documents). */
+  fields?: Record<string, string> | null;
+  /** Structured NDA field updates (for the bespoke NDA). */
+  ndaFields?: ExtractedFields | null;
 }
 
 // Empty = same origin (how it runs in the single Docker container). For local
@@ -38,12 +43,13 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "";
 
 export async function sendChat(
   messages: ChatMessage[],
-  data: NdaFormData,
+  docType: string | null,
+  data: unknown,
 ): Promise<ChatResponse> {
   const res = await fetch(`${API_BASE}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, data }),
+    body: JSON.stringify({ messages, docType, data }),
   });
 
   if (!res.ok) {
