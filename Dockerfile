@@ -6,9 +6,16 @@
 FROM node:20-slim AS frontend
 WORKDIR /frontend
 
-# Install dependencies first for better layer caching.
+# Default to the npmmirror CDN so the build works out of the box on networks
+# where registry.npmjs.org is slow or blocked. Override for other regions with
+# --build-arg NPM_REGISTRY=https://registry.npmjs.org
+ARG NPM_REGISTRY=https://registry.npmmirror.com
+
+# Install dependencies first for better layer caching. --no-audit/--no-fund and
+# a couple of retry knobs make `npm ci` faster and more resilient.
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
+RUN npm ci --registry="${NPM_REGISTRY}" --no-audit --no-fund \
+    --fetch-retries=5 --fetch-retry-maxtimeout=120000
 
 # Build the static site.
 COPY frontend/ ./

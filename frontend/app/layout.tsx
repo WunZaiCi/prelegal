@@ -1,29 +1,12 @@
 import type { Metadata } from "next";
-import { Fraunces, Newsreader, Archivo } from "next/font/google";
+// Self-hosted fonts (no build-time Google Fonts fetch). The matching CSS
+// variables are defined in globals.css and consumed by tailwind.config.ts.
+import "@fontsource-variable/fraunces/index.css";
+import "@fontsource-variable/fraunces/standard-italic.css";
+import "@fontsource-variable/newsreader/index.css";
+import "@fontsource-variable/newsreader/standard-italic.css";
+import "@fontsource-variable/archivo/index.css";
 import "./globals.css";
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-newsreader",
-  display: "swap",
-});
-
-const archivo = Archivo({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-archivo",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Prelegal · Mutual NDA Creator",
@@ -38,11 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${fraunces.variable} ${newsreader.variable} ${archivo.variable} bg-grain-overlay`}
-      >
-        {children}
-      </body>
+      <body className="bg-grain-overlay">{children}</body>
     </html>
   );
 }

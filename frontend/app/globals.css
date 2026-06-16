@@ -4,6 +4,13 @@
 
 :root {
   color-scheme: light;
+
+  /* Self-hosted fonts (via @fontsource, imported in layout.tsx) so the build
+     needs no network access to Google Fonts. Tailwind's fontFamily reads these
+     variables and falls back to Georgia / system-ui if a face is missing. */
+  --font-fraunces: "Fraunces Variable", Georgia, serif;
+  --font-newsreader: "Newsreader Variable", Georgia, serif;
+  --font-archivo: "Archivo Variable", system-ui, sans-serif;
 }
 
 html,

@@ -6,7 +6,14 @@ $Image = "prelegal"
 $Container = "prelegal"
 
 Write-Host "Building $Image image..."
-docker build -t $Image $Root
+# On slow/blocked networks, set $env:NPM_REGISTRY (e.g. https://registry.npmmirror.com)
+# to build the frontend against a mirror.
+$BuildArgs = @()
+if ($env:NPM_REGISTRY) {
+  Write-Host "Using npm registry: $env:NPM_REGISTRY"
+  $BuildArgs += @("--build-arg", "NPM_REGISTRY=$($env:NPM_REGISTRY)")
+}
+docker build @BuildArgs -t $Image $Root
 
 # Replace any container left over from a previous run.
 docker rm -f $Container 2>$null | Out-Null
