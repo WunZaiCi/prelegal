@@ -56,7 +56,7 @@ export default function ChatPanel({
   };
 
   return (
-    <div className="flex h-[calc(100vh-13rem)] min-h-[420px] flex-col rounded-xl border border-line bg-paper-deep/40">
+    <div className="flex h-[calc(100vh-13rem)] min-h-[420px] flex-col rounded-xl border border-line bg-surface shadow-document">
       {/* Conversation */}
       <div
         ref={scrollRef}
@@ -77,7 +77,7 @@ export default function ChatPanel({
       </div>
 
       {error ? (
-        <p className="mx-5 mb-2 rounded-md border border-oxblood/30 bg-oxblood/[0.06] px-3 py-2 font-body text-[13px] text-oxblood">
+        <p className="mx-5 mb-2 rounded-md border border-purple/30 bg-purple/[0.06] px-3 py-2 font-body text-[13px] text-purple">
           {error}
         </p>
       ) : null}
@@ -93,12 +93,12 @@ export default function ChatPanel({
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your answer…"
           aria-label="Message"
-          className="min-w-0 flex-1 rounded-md border border-line bg-paper px-3 py-2.5 font-body text-[15px] text-ink outline-none transition-colors placeholder:text-ink-soft/50 focus:border-oxblood focus:ring-2 focus:ring-oxblood/15"
+          className="min-w-0 flex-1 rounded-md border border-line bg-canvas px-3 py-2.5 font-body text-[15px] text-ink outline-none transition-colors placeholder:text-muted/60 focus:border-blue focus:ring-2 focus:ring-blue/20"
         />
         <button
           type="submit"
           disabled={busy || !input.trim()}
-          className="shrink-0 rounded-full bg-ink px-5 py-2.5 font-ui text-[13px] font-600 tracking-[0.04em] text-paper transition-colors hover:bg-oxblood disabled:cursor-not-allowed disabled:opacity-50"
+          className="shrink-0 rounded-full bg-purple px-5 py-2.5 font-ui text-[13px] font-600 tracking-[0.04em] text-white transition-colors hover:bg-purple-deep disabled:cursor-not-allowed disabled:opacity-50"
         >
           Send
         </button>
@@ -120,8 +120,8 @@ function Bubble({
       <div
         className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 font-body text-[15px] leading-relaxed ${
           isUser
-            ? "bg-ink text-paper"
-            : "border border-line bg-paper text-ink"
+            ? "bg-blue text-white"
+            : "border border-line bg-canvas text-ink"
         }`}
       >
         {children}
@@ -133,7 +133,7 @@ function Bubble({
 function Dot({ delay = "0ms" }: { delay?: string }) {
   return (
     <span
-      className="h-1.5 w-1.5 animate-pulse rounded-full bg-ink-soft"
+      className="h-1.5 w-1.5 animate-pulse rounded-full bg-muted"
       style={{ animationDelay: delay }}
     />
   );

@@ -51,7 +51,7 @@ export default function DownloadPdfButton({ data }: { data: NdaFormData }) {
       type="button"
       onClick={handleDownload}
       disabled={busy}
-      className="group inline-flex items-center gap-2.5 rounded-full bg-ink px-6 py-3 font-ui text-[13px] font-600 tracking-[0.04em] text-paper shadow-document transition-all hover:bg-oxblood disabled:cursor-wait disabled:opacity-70"
+      className="group inline-flex items-center gap-2.5 rounded-full bg-blue px-6 py-3 font-ui text-[13px] font-600 tracking-[0.04em] text-white shadow-document transition-all hover:bg-blue-deep disabled:cursor-wait disabled:opacity-70"
     >
       <svg
         width="16"

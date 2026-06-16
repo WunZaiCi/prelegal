@@ -7,15 +7,14 @@
 
   /* Self-hosted fonts (via @fontsource, imported in layout.tsx) so the build
      needs no network access to Google Fonts. Tailwind's fontFamily reads these
-     variables and falls back to Georgia / system-ui if a face is missing. */
-  --font-fraunces: "Fraunces Variable", Georgia, serif;
-  --font-newsreader: "Newsreader Variable", Georgia, serif;
+     variables and falls back to system-ui / Georgia if a face is missing. */
   --font-archivo: "Archivo Variable", system-ui, sans-serif;
+  --font-newsreader: "Newsreader Variable", Georgia, serif;
 }
 
 html,
 body {
-  background-color: theme("colors.paper");
+  background-color: theme("colors.canvas");
   color: theme("colors.ink");
 }
 
@@ -23,18 +22,6 @@ body {
   font-family: theme("fontFamily.body");
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-
-/* Subtle paper grain layered over the page background. */
-.bg-grain-overlay::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: theme("backgroundImage.grain");
-  opacity: 0.04;
-  pointer-events: none;
-  z-index: 0;
-  mix-blend-mode: multiply;
 }
 
 /* Staggered entrance for the two main columns. */
@@ -63,5 +50,5 @@ body {
 .preview-scroll::-webkit-scrollbar-thumb {
   background: theme("colors.line");
   border-radius: 999px;
-  border: 3px solid theme("colors.paper");
+  border: 3px solid theme("colors.canvas");
 }
