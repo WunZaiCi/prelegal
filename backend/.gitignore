@@ -1,0 +1,12 @@
+# SQLite database is recreated on every startup — never commit it.
+*.db
+*.db-journal
+
+# Exported frontend copied in by the Docker build / start scripts.
+/static/
+
+# Python / uv
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/

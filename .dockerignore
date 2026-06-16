@@ -1,0 +1,27 @@
+# Git / project meta
+.git
+.gitignore
+.claude
+*.md
+!backend/README.md
+
+# Frontend build artifacts & deps (rebuilt inside the image)
+frontend/node_modules
+frontend/.next
+frontend/out
+frontend/*.tsbuildinfo
+
+# Backend local artifacts
+backend/.venv
+backend/__pycache__
+backend/**/__pycache__
+backend/.pytest_cache
+backend/*.db
+backend/static
+
+# Secrets / env
+.env
+.env*.local
+
+# OS noise
+.DS_Store
