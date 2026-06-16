@@ -6,10 +6,10 @@
 FROM node:20-slim AS frontend
 WORKDIR /frontend
 
-# Default to the npmmirror CDN so the build works out of the box on networks
-# where registry.npmjs.org is slow or blocked. Override for other regions with
-# --build-arg NPM_REGISTRY=https://registry.npmjs.org
-ARG NPM_REGISTRY=https://registry.npmmirror.com
+# Default to the official npm registry. On networks inside mainland China where
+# registry.npmjs.org is slow or blocked, build against a mirror with
+# --build-arg NPM_REGISTRY=https://registry.npmmirror.com
+ARG NPM_REGISTRY=https://registry.npmjs.org
 
 # Install dependencies first for better layer caching. --no-audit/--no-fund and
 # a couple of retry knobs make `npm ci` faster and more resilient.
