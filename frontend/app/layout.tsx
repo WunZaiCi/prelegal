@@ -8,9 +8,9 @@ import "@fontsource-variable/newsreader/standard-italic.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Prelegal · Mutual NDA Creator",
+  title: "Prelegal · Legal Document Creator",
   description:
-    "Generate a Common Paper Mutual Non-Disclosure Agreement from a simple form and download it as a PDF.",
+    "Draft legal documents through an AI chat, save your drafts, and download ready-to-review PDFs. Drafts only — not legal advice.",
 };
 
 export default function RootLayout({

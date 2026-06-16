@@ -42,6 +42,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
     color: NAVY,
   },
+  draftNote: {
+    marginTop: 6,
+    fontFamily: "Helvetica-Bold",
+    fontSize: 7.5,
+    letterSpacing: 0.5,
+    textAlign: "center",
+    color: "#9A6A00",
+  },
   intro: { marginTop: 18, fontSize: 9.5, color: SOFT },
   fieldGroup: { marginTop: 14 },
   fieldLabel: {
@@ -170,6 +178,9 @@ export default function GenericPdfDocument({
       <Page size="A4" style={styles.page}>
         <Text style={styles.eyebrow}>COVER PAGE</Text>
         <Text style={styles.title}>{spec.name}</Text>
+        <Text style={styles.draftNote}>
+          DRAFT — review by a qualified lawyer before use. Not legal advice.
+        </Text>
 
         <Text style={styles.intro}>
           This {spec.name} consists of this Cover Page and the Common Paper{" "}

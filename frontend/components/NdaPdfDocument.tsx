@@ -45,6 +45,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 8,
   },
+  draftNote: {
+    marginTop: 6,
+    fontFamily: "Helvetica-Bold",
+    fontSize: 7.5,
+    letterSpacing: 0.5,
+    textAlign: "center",
+    color: "#9A6A00",
+  },
   intro: { marginTop: 18, fontSize: 9.5, color: SOFT },
   fieldGroup: { marginTop: 14 },
   fieldLabel: {
@@ -167,6 +175,9 @@ export default function NdaPdfDocument({ data }: { data: NdaFormData }) {
       <Page size="A4" style={styles.page}>
         <Text style={styles.eyebrow}>COVER PAGE</Text>
         <Text style={styles.title}>Mutual Non-Disclosure Agreement</Text>
+        <Text style={styles.draftNote}>
+          DRAFT — review by a qualified lawyer before use. Not legal advice.
+        </Text>
 
         <Text style={styles.intro}>
           This Mutual Non-Disclosure Agreement (the “MNDA”) consists of: (1)

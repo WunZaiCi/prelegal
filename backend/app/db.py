@@ -1,10 +1,11 @@
-"""SQLite foundation for the V1 product.
+"""SQLite foundation for the product.
 
 The database is intentionally *ephemeral*: it is recreated from scratch every
 time the app starts (and therefore every time the Docker container starts), as
-required by the project's technical design. V1 ships with a fake, frontend-only
-login, so no endpoints read or write the ``users`` table yet — it exists as
-scaffolding so real registration/login can be added later without a migration.
+required by the project's technical design. PL-7 adds real registration/login
+(``users`` + ``sessions``) and per-user saved drafts (``documents``); because
+the database resets on restart, sessions and saved documents do not survive a
+server restart — which the ticket explicitly allows.
 """
 
 from __future__ import annotations
@@ -15,8 +16,9 @@ from pathlib import Path
 
 from .config import DATABASE_PATH
 
-# Schema for the foundational `users` table. Password hashes are stored (rather
-# than plaintext) so the column is ready for real authentication later.
+# Schema. Password hashes (never plaintext) live in `users`; opaque session
+# tokens in `sessions`; per-user saved drafts in `documents` (the editor state
+# is stored as a JSON string in `data`). Child rows cascade-delete with users.
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,6 +26,25 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT    NOT NULL,
     created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS sessions (
+    token      TEXT    PRIMARY KEY,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS documents (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    doc_type   TEXT    NOT NULL,
+    title      TEXT    NOT NULL,
+    data       TEXT    NOT NULL,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_documents_user ON documents(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 """
 
 
