@@ -1,13 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 import NdaForm from "@/components/NdaForm";
 import NdaPreview from "@/components/NdaPreview";
+import { isAuthed, signOut } from "@/lib/auth";
 import { defaultNdaData, todayIso, type NdaFormData } from "@/lib/nda-types";
 
 export default function Home() {
+  const router = useRouter();
+  const [authed, setAuthed] = useState<boolean | null>(null);
   const [data, setData] = useState<NdaFormData>(defaultNdaData);
+
+  // Gate the platform behind the fake login: bounce to /login if not signed in.
+  useEffect(() => {
+    if (isAuthed()) {
+      setAuthed(true);
+    } else {
+      router.replace("/login");
+    }
+  }, [router]);
 
   // Default the Effective Date to today, client-side, to avoid hydration
   // mismatches with the statically prerendered HTML.
@@ -16,6 +29,14 @@ export default function Home() {
       prev.effectiveDate ? prev : { ...prev, effectiveDate: todayIso() },
     );
   }, []);
+
+  const handleSignOut = () => {
+    signOut();
+    router.replace("/login");
+  };
+
+  // Avoid flashing the platform before the auth check resolves.
+  if (!authed) return null;
 
   return (
     <main className="relative z-10 mx-auto min-h-screen w-full max-w-[1400px] px-5 sm:px-8 lg:px-12">
@@ -38,8 +59,15 @@ export default function Home() {
             ready-to-sign PDF.
           </p>
         </div>
-        <div className="shrink-0">
+        <div className="flex shrink-0 items-center gap-4">
           <DownloadPdfButton data={data} />
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="font-ui text-[12px] font-600 uppercase tracking-[0.16em] text-ink-soft transition-colors hover:text-oxblood"
+          >
+            Sign out
+          </button>
         </div>
       </header>
 
