@@ -15,8 +15,12 @@ if ($env:NPM_REGISTRY) {
 }
 docker build @BuildArgs -t $Image $Root
 
-# Replace any container left over from a previous run.
-docker rm -f $Container 2>$null | Out-Null
+# Replace any container left over from a previous run. Check existence first:
+# `docker rm` on a missing container writes to stderr, which $ErrorActionPreference
+# = "Stop" would turn into a terminating error.
+if (docker ps -aq -f "name=^$Container$") {
+  docker rm -f $Container | Out-Null
+}
 
 Write-Host "Starting $Container ..."
 docker run -d --name $Container -p 8000:8000 $Image
