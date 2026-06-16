@@ -8,28 +8,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Legal-stationery palette
-        paper: "#F6F2E9", // warm ivory
-        "paper-deep": "#EDE7D8", // slightly deeper ivory for panels
-        ink: "#1C1A17", // near-black warm ink
-        "ink-soft": "#4A453D", // muted ink for secondary text
-        oxblood: "#7A2E2A", // refined burgundy accent
-        "oxblood-deep": "#5E211E",
-        forest: "#2E3A2C", // supporting deep green
-        line: "#D8D0BE", // hairline borders
+        // Cool, modern SaaS palette (see CLAUDE.md "Color Scheme").
+        canvas: "#F6F9FC", // page background
+        surface: "#FFFFFF", // cards / panels
+        navy: "#032147", // headings & strong text
+        "navy-soft": "#0c3460", // hover/secondary navy
+        ink: "#1F2A37", // body text
+        muted: "#888888", // secondary text (CLAUDE.md gray)
+        line: "#E3E8EF", // hairline borders
+        blue: "#209DD7", // primary accent — actions, links, focus
+        "blue-deep": "#1B86B9",
+        yellow: "#ECAD0A", // highlight accent
+        "yellow-deep": "#D29A08",
+        purple: "#753991", // submit buttons (CLAUDE.md)
+        "purple-deep": "#5E2D75",
       },
       fontFamily: {
-        display: ["var(--font-fraunces)", "Georgia", "serif"],
-        body: ["var(--font-newsreader)", "Georgia", "serif"],
+        // App chrome is clean sans (Archivo). The document preview keeps a
+        // serif (Newsreader) so the contract itself still reads formally.
+        display: ["var(--font-archivo)", "system-ui", "sans-serif"],
+        body: ["var(--font-archivo)", "system-ui", "sans-serif"],
         ui: ["var(--font-archivo)", "system-ui", "sans-serif"],
+        serif: ["var(--font-newsreader)", "Georgia", "serif"],
       },
       boxShadow: {
-        document: "0 24px 60px -28px rgba(28, 26, 23, 0.45)",
-        panel: "0 1px 0 0 #D8D0BE",
-      },
-      backgroundImage: {
-        grain:
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E\")",
+        document: "0 24px 60px -28px rgba(3, 33, 71, 0.28)",
+        panel: "0 1px 0 0 #E3E8EF",
       },
     },
   },

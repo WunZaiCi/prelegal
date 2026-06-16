@@ -3,10 +3,10 @@
 import { useState } from "react";
 
 const labelClass =
-  "block font-ui text-[11px] font-600 uppercase tracking-[0.14em] text-ink-soft";
+  "block font-ui text-[11px] font-600 uppercase tracking-[0.14em] text-muted";
 
 const controlClass =
-  "mt-2 w-full rounded-md border border-line bg-paper px-3 py-2.5 font-body text-[15px] text-ink outline-none transition-colors placeholder:text-ink-soft/50 focus:border-oxblood focus:ring-2 focus:ring-oxblood/15";
+  "mt-2 w-full rounded-md border border-line bg-canvas px-3 py-2.5 font-body text-[15px] text-ink outline-none transition-colors placeholder:text-muted/60 focus:border-blue focus:ring-2 focus:ring-blue/20";
 
 /**
  * Presentational sign-in card for the V1 fake login.
@@ -52,7 +52,7 @@ export default function LoginForm({ onSignIn }: { onSignIn: () => void }) {
 
       <button
         type="submit"
-        className="group mt-1 inline-flex items-center justify-center gap-2.5 rounded-full bg-ink px-6 py-3 font-ui text-[13px] font-600 tracking-[0.04em] text-paper shadow-document transition-all hover:bg-oxblood"
+        className="group mt-1 inline-flex items-center justify-center gap-2.5 rounded-full bg-purple px-6 py-3 font-ui text-[13px] font-600 tracking-[0.04em] text-white shadow-document transition-all hover:bg-purple-deep"
       >
         Continue
         <svg
@@ -73,7 +73,7 @@ export default function LoginForm({ onSignIn }: { onSignIn: () => void }) {
         </svg>
       </button>
 
-      <p className="font-body text-[13px] italic text-ink-soft">
+      <p className="font-body text-[13px] text-muted">
         Demo access — no account required. Any details take you straight into the
         platform.
       </p>
